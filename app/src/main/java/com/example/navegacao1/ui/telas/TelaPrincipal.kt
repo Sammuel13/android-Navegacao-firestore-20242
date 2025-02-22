@@ -1,5 +1,7 @@
 package com.example.navegacao1.ui.telas
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,10 +15,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import com.example.navegacao1.model.dados.Usuario
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun TelaPrincipal(modifier: Modifier = Modifier, onLogoffClick: () -> Unit) {
@@ -28,7 +32,7 @@ fun TelaPrincipal(modifier: Modifier = Modifier, onLogoffClick: () -> Unit) {
 
         Button(onClick = {
             scope.launch(Dispatchers.IO) {
-                usuarioDAO.buscar( callback = { usuariosRetornados ->
+                usuarioDAO.buscar(callback = { usuariosRetornados ->
                     usuarios.clear()
                     usuarios.addAll(usuariosRetornados)
                 })
@@ -43,11 +47,18 @@ fun TelaPrincipal(modifier: Modifier = Modifier, onLogoffClick: () -> Unit) {
         //Carrega sob demanda à medida que o usuário rola na tela
         LazyColumn {
             items(usuarios) { usuario ->
-                //TODO melhore esse card. Estão colados, e com pouca informação. Deixe mais
-                // elegante.
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column {
-                        Text(text = usuario.nome)
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    shape = MaterialTheme.shapes.medium // Adiciona cantos arredondados
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(text = "Nome: ${usuario.nome}", style = MaterialTheme.typography.titleMedium)
+                        Spacer(modifier = Modifier.padding(2.dp))
                     }
                 }
             }

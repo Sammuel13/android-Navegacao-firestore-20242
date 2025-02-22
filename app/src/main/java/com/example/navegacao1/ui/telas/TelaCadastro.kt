@@ -26,7 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun TelaLogin(modifier: Modifier = Modifier, onSigninClick: () -> Unit, onSignupClick: () -> Unit) {
+fun TelaCadastro(modifier: Modifier = Modifier, onSignupClick: () -> Unit) {
     val context = LocalContext.current
     var scope = rememberCoroutineScope()
 
@@ -43,28 +43,30 @@ fun TelaLogin(modifier: Modifier = Modifier, onSigninClick: () -> Unit, onSignup
             onValueChange = { senha = it }, label = { Text(text = "Senha") })
         Button(modifier = Modifier.fillMaxWidth(), onClick = {
             scope.launch(Dispatchers.IO) {
+                if (login.isEmpty() || senha.isEmpty()) {
+                    mensagemErro = "Preencha todos os campos!"
+                    return@launch
+                }
                 usuarioDAO.buscarPorNome(login, callback = { usuario ->
-                    if (usuario != null && usuario.senha == senha) {
-                        onSigninClick()
+                    if (usuario == null) {
+                        val novoUsuario = Usuario(nome = login, senha = senha)
+                        usuarioDAO.adicionar(novoUsuario) {}
+                        onSignupClick()
                     } else {
-                        mensagemErro = "Login ou senha inválidos!"
+                        mensagemErro = "Usuário já existe!"
                     }
                 })
             }
         }) {
-            Text("Entrar")
+            Text("Cadastrar")
         }
-        Button(modifier = Modifier.fillMaxWidth(), onClick = {
-            onSignupClick()
-        }) {
-            Text("Criar uma conta")
+
+        mensagemErro?.let {
+            LaunchedEffect(it) {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                mensagemErro = null
+            }
         }
     }
 
-    mensagemErro?.let {
-        LaunchedEffect(it) {
-            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-            mensagemErro = null
-        }
-    }
 }
